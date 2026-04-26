@@ -37,4 +37,4 @@ jobs:
           git config --global user.email "github-actions-bot@andrew6rant.github.io"
           git config --global user.name "Andrew6rant/GitHub-Actions-Bot"
           git commit -m "Updated README" -a || echo "No changes to commit"
-          git push
+          git push https://${{ github.token }}@github.com/${{ github.repository }}.git
