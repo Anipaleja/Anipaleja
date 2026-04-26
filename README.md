@@ -4,3 +4,7 @@
     <img alt="Anipaleja's GitHub Profile README" src="https://raw.githubusercontent.com/Anipaleja/Anipaleja/main/light_mode.svg">
   </picture>
 </a>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Anipaleja/Anipaleja/output/github-contribution-grid-snake-dark.svg" />
+</p>
