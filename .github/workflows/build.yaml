@@ -5,16 +5,20 @@ on:
       - main
   schedule:
     - cron: "0 4 * * *"
+
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Get Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8'
       - name: Configure pip cache
@@ -37,4 +41,4 @@ jobs:
           git config --global user.email "github-actions-bot@andrew6rant.github.io"
           git config --global user.name "Andrew6rant/GitHub-Actions-Bot"
           git commit -m "Updated README" -a || echo "No changes to commit"
-          git push https://${{ github.token }}@github.com/${{ github.repository }}.git
+          git push
