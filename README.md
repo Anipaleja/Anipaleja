@@ -6,10 +6,7 @@
 </a>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Anipaleja/Anipaleja/main/work_coding.html">
-    <img src="https://raw.githubusercontent.com/Anipaleja/Anipaleja/main/work_coding.html">
-  </picture>
+  <video src="https://raw.githubusercontent.com/Anipaleja/Anipaleja/main/Coding%20Animation.mp4" autoplay muted loop playsinline></video>
 </p>
 
 <p align="center">
