@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>work_coding</title>
+<style>
+  html,body{margin:0;background:#0f0f0f;height:100%;font-family:monospace}
+  .stage{width:100%;height:100%;display:grid;place-items:center;padding:8%;box-sizing:border-box}
+  #grid{width:100%;max-width:520px;aspect-ratio:1;display:grid;
+    grid-template-columns:repeat(20,1fr);grid-template-rows:repeat(20,1fr);background:#0f0f0f;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: calc(100%/20) 100%, 100% calc(100%/20);
+  }
+</style>
+</head>
+<body>
+<div class="stage"><div id="grid"></div></div>
+<script>
+/* STANDALONE */
+// ── palette ───────────────────────────────────────────────────
+// 0=empty  1=body(orange)  2=eye(dark)  3=headphone-light  4=headphone-shadow
+// 5=laptop-screen(lighter gray, ON)  6=laptop-base(darker gray)
+// 7=laptop-logo(lighter square)  8=desk-top  9=desk-leg
+const PAL=[
+  'transparent',   // 0
+  '#CD7F6A',       // 1 body orange
+  '#111111',       // 2 eye
+  '#d4dde2',       // 3 headphone light
+  '#8a9199',       // 4 headphone shadow
+  '#6e7278',       // 5 laptop screen (ON — lighter gray, warmer)
+  '#3a3c40',       // 6 laptop base
+  '#b8bcc0',       // 7 laptop logo
+  '#2a2c30',       // 8 desk top
+  '#1c1e21',       // 9 desk leg
+];
+const E=0,B=1,Y=2,HL=3,HS=4,SC=5,LB=6,LG=7,DT=8,DL=9;
+
+// ── grid dom ──────────────────────────────────────────────────
+const host=document.getElementById('grid');
+const cells=[];
+for(let r=0;r<20;r++){cells.push([]);for(let c=0;c<20;c++){
+  const d=document.createElement('div');host.appendChild(d);cells[r].push(d);
+}}
+function paint(f){
+  for(let r=0;r<20;r++)for(let c=0;c<20;c++){
+    const v=f[r][c],el=cells[r][c];
+    el.style.background=PAL[v]||'transparent';
+    el.style.boxShadow=v?'inset 0 0 0 1px rgba(0,0,0,0.28)':'none';
+  }
+}
+function pt(f,ops){
+  const o=f.map(r=>r.slice());
+  ops.forEach(([r,c,v])=>{if(r>=0&&r<20&&c>=0&&c<20)o[r][c]=v;});
+  return o;
+}
+
+// ── BASE SCENE ────────────────────────────────────────────────
+// Reference: wide flat headband arc, large square head with headphones covering
+// ears (ear cups extend past the head sides), body with arms reaching in front
+// of the laptop, trapezoidal laptop wider at top (screen) narrower at base,
+// desk extends full width with two visible legs.
+const BASE=[
+  //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
+  [ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E ], // 0
+  [ E, E, E, E, E, E,HL,HL,HL,HL,HL,HL,HL,HL, E, E, E, E, E, E ], // 1 headband arc
+  [ E, E, E, E, E,HL,HS, E, E, E, E, E, E,HS,HL, E, E, E, E, E ], // 2 headband descends to ear cups
+  [ E, E, E, E,HL,HS, B, B, B, B, B, B, B, B,HS,HL, E, E, E, E ], // 3 ear cup tops + head
+  [ E, E, E, E,HL,HS, B, Y, B, B, B, B, Y, B,HS,HL, E, E, E, E ], // 4 ear cups + eyes
+  [ E, E, E, E,HL,HS, B, B, B, B, B, B, B, B,HS,HL, E, E, E, E ], // 5 ear cups + head
+  [ E, E, E, E, E, E, B, B, B, B, B, B, B, B, E, E, E, E, E, E ], // 6 head bottom
+  [ E, E, E, E, B, B, B, B, B, B, B, B, B, B, B, B, E, E, E, E ], // 7 shoulders
+  [ E, E, E, B, B, B,SC,SC,SC,SC,SC,SC,SC,SC, B, B, B, E, E, E ], // 8 arms + screen top (wider)
+  [ E, E, E, B, B, B,SC,SC,SC,SC,SC,SC,SC,SC, B, B, B, E, E, E ], // 9 arms + screen
+  [ E, E, E, B, B, B,SC,SC,SC,LG,LG,SC,SC,SC, B, B, B, E, E, E ], //10 arms + screen w/ logo square
+  [ E, E, E, B, B, B,SC,SC,SC,LG,LG,SC,SC,SC, B, B, B, E, E, E ], //11 arms + screen (logo)
+  [ E, E, E, E, B,LB,LB,LB,LB,LB,LB,LB,LB,LB,LB, B, E, E, E, E ], //12 laptop base (narrower than screen)
+  [ E,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT,DT, E ], //13 desk top (full width)
+  [ E, E,DL,DL, E, E, E, E, E, E, E, E, E, E, E, E,DL,DL, E, E ], //14 desk legs
+  [ E, E,DL,DL, E, E, E, E, E, E, E, E, E, E, E, E,DL,DL, E, E ], //15 desk legs
+  [ E, E,DL,DL, E, E, E, E, E, E, E, E, E, E, E, E,DL,DL, E, E ], //16 desk legs
+  [ E, E,DL,DL, E, E, E, E, E, E, E, E, E, E, E, E,DL,DL, E, E ], //17 desk legs
+  [ E, E,DL,DL, E, E, E, E, E, E, E, E, E, E, E, E,DL,DL, E, E ], //18 desk legs
+  [ E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E ], //19
+];
+
+// ── TYPING poses ──────────────────────────────────────────────
+// Arms extend down slightly onto the laptop base edge (cols 5 left, 15 right)
+// to simulate hands reaching for keys.
+const TYPE_L = pt(BASE,[
+  [12,5,B],          // left hand drops toward keyboard
+]);
+const TYPE_R = pt(BASE,[
+  [12,15,B],         // right hand drops toward keyboard
+]);
+const TYPE_BOTH = pt(BASE,[
+  [12,5,B],[12,15,B],
+]);
+
+// ── THINK pose: hands pull back slightly, eyes shift up ───────
+const THINK = pt(BASE,[
+  [4,7,B],[4,12,B],   // clear original eyes
+  [3,7,Y],[3,12,Y],   // eyes look up at screen
+]);
+
+// ── BLINK ─────────────────────────────────────────────────────
+const BLINK = pt(BASE,[
+  [4,7,B],[4,12,B],
+]);
+
+// ── HEAD BOB: head+headphones shifted down 1 row ──────────────
+function headBob(base){
+  const o=base.map(r=>r.slice());
+  // Capture head+headphone rows 1..5
+  const src=[base[1].slice(),base[2].slice(),base[3].slice(),base[4].slice(),base[5].slice()];
+  // Clear those rows (but only head/phone values)
+  for(const r of [1,2,3,4,5]){
+    for(let c=0;c<20;c++){
+      const v=base[r][c];
+      if(v===HL||v===HS||v===B||v===Y) o[r][c]=E;
+    }
+  }
+  // Copy down by 1: src i -> destination row i+2
+  for(let i=0;i<5;i++){
+    for(let c=0;c<20;c++){
+      const v=src[i][c];
+      if(v===HL||v===HS||v===B||v===Y){
+        // don't overwrite row 6 head bottom with headphone bits
+        if(i+2<=6) o[i+2][c]=v;
+      }
+    }
+  }
+  return o;
+}
+const BOB = headBob(BASE);
+const BOB_TYPE_L = pt(BOB,[[12,5,B]]);
+const BOB_TYPE_R = pt(BOB,[[12,15,B]]);
+
+// ── CURSOR blink on screen ───────────────────────────────────
+const CUR_ON  = pt(THINK,[[9,13,LG]]);
+const CUR_OFF = THINK;
+
+// ── ANIMATION FRAMES ─────────────────────────────────────────
+const FRAMES=[
+  // alternating typing
+  {hold:180, frame:TYPE_L},
+  {hold:180, frame:TYPE_R},
+  {hold:180, frame:TYPE_L},
+  {hold:180, frame:TYPE_R},
+  {hold:140, frame:TYPE_BOTH},
+  {hold:180, frame:TYPE_L},
+  {hold:180, frame:TYPE_R},
+  // head bob while typing
+  {hold:180, frame:BOB_TYPE_L},
+  {hold:180, frame:BOB_TYPE_R},
+  {hold:180, frame:TYPE_L},
+  {hold:180, frame:TYPE_R},
+  // blink
+  {hold:90,  frame:BLINK},
+  {hold:90,  frame:BASE},
+  // think pause — eyes up, cursor blinks
+  {hold:400, frame:THINK},
+  {hold:300, frame:CUR_ON},
+  {hold:280, frame:CUR_OFF},
+  {hold:300, frame:CUR_ON},
+  {hold:200, frame:CUR_OFF},
+  // resume typing
+  {hold:180, frame:TYPE_L},
+  {hold:180, frame:TYPE_R},
+  {hold:180, frame:TYPE_BOTH},
+  {hold:180, frame:TYPE_L},
+  {hold:180, frame:TYPE_R},
+];
+
+let idx=0,startAt=performance.now();
+function tick(now){
+  if(now-startAt>=FRAMES[idx].hold){idx=(idx+1)%FRAMES.length;startAt=now;paint(FRAMES[idx].frame);}
+  requestAnimationFrame(tick);
+}
+paint(FRAMES[0].frame);
+requestAnimationFrame(tick);
+
+// ── Compatibility PRESET for library card preview ────────────
+window.STANDALONE = true;
+window.FRAMES = FRAMES;
+window.PAL = PAL;
+</script>
+</body>
+</html>
